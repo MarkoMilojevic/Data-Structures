@@ -9,9 +9,7 @@ namespace DataStructures.Graphs
 	public class DirectedWeightedGraph<TVertex> : IGraph<TVertex>
 	{
 		private Dictionary<TVertex, List<DirectedWeightedEdge<TVertex>>> adjacencyList;
-
 		public int VertexCount { get; protected set; }
-
 		public int EdgeCount { get; protected set; }
 
 		public DirectedWeightedGraph()
@@ -54,11 +52,6 @@ namespace DataStructures.Graphs
 
 		public bool ContainsVertex(TVertex vertex)
 		{
-			if (vertex == null)
-			{
-				throw new ArgumentNullException();
-			}
-
 			return this.adjacencyList.ContainsKey(vertex);
 		}
 
@@ -76,7 +69,7 @@ namespace DataStructures.Graphs
 
 			if (source.Equals(target))
 			{
-				throw new ArgumentException("Self-loops not allowed");
+				throw new ArgumentException("Self-loops are not allowed");
 			}
 
 			if (!this.ContainsEdge(source, target))

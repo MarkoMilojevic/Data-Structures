@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataStructures.UnionFind
 {
 	public class UnionFind<T>
 	{
 		private Dictionary<T, T> parentMap;
-
 		private Dictionary<T, int> rankMap;
 
 		public int Count { get; private set; }
@@ -22,6 +19,11 @@ namespace DataStructures.UnionFind
 
 		public UnionFind(ISet<T> elements)
 		{
+			if (elements == null)
+			{
+				throw new ArgumentNullException();
+			}
+
 			parentMap = new Dictionary<T, T>();
 			rankMap = new Dictionary<T, int>();
 			foreach (T element in elements)
@@ -33,11 +35,6 @@ namespace DataStructures.UnionFind
 
 		public void Add(T element)
 		{
-			if (element == null)
-			{
-				throw new ArgumentNullException();
-			}
-
 			if (parentMap.ContainsKey(element))
 			{
 				throw new ArgumentException("Element already in the set");
@@ -49,11 +46,6 @@ namespace DataStructures.UnionFind
 
 		public T Find(T element)
 		{
-			if (element == null)
-			{
-				throw new ArgumentNullException();
-			}
-
 			if (!parentMap.ContainsKey(element))
 			{
 				throw new ArgumentException("Element not found");
@@ -77,11 +69,6 @@ namespace DataStructures.UnionFind
 
 		public void Union(T element1, T element2)
 		{
-			if (element1 == null || element2 == null)
-			{
-				throw new ArgumentNullException();
-			}
-
 			if (!parentMap.ContainsKey(element1) || !parentMap.ContainsKey(element2))
 			{
 				throw new ArgumentException("Elements not found");

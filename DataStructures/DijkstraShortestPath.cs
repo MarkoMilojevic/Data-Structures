@@ -12,16 +12,16 @@ namespace DataStructures.Graphs
 
 		public DijkstraShortestPath(DirectedWeightedGraph<TVertex> graph)
 		{
+			if (graph == null)
+			{
+				throw new ArgumentNullException();
+			}
+
 			this.graph = graph;
 		}
 
 		public Dictionary<TVertex, TVertex> GetParentsMap(TVertex source)
 		{
-			if (this.graph == null || source == null)
-			{
-				throw new ArgumentNullException();
-			}
-
 			if (!this.graph.ContainsVertex(source))
 			{
 				throw new ArgumentException("Vertex not contained in graph");

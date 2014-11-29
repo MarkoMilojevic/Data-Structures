@@ -9,9 +9,7 @@ namespace DataStructures.Graphs
 	public class DirectedGraph<TVertex> : IGraph<TVertex>
 	{
 		private Dictionary<TVertex, List<DirectedEdge<TVertex>>> adjacencyList;
-
 		public int VertexCount { get; protected set; }
-
 		public int EdgeCount { get; protected set; }
 
 		public DirectedGraph()
@@ -54,11 +52,6 @@ namespace DataStructures.Graphs
 
 		public bool ContainsVertex(TVertex vertex)
 		{
-			if (vertex == null)
-			{
-				throw new ArgumentNullException();
-			}
-
 			return this.adjacencyList.ContainsKey(vertex);
 		}
 

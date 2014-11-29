@@ -6,10 +6,10 @@ namespace DataStructures.PriorityQueues
 {
 	public class PriorityQueue<T> where T : IComparable<T>
 	{
-		public int Count { get; private set; }
+		private const int InitialCapacity = 100;
 		private T[] queue;
 		private IComparer<T> comparer;
-		private const int InitialCapacity = 100;
+		public int Count { get; private set; }
 
 		public PriorityQueue()
 		{
@@ -20,6 +20,11 @@ namespace DataStructures.PriorityQueues
 
 		public PriorityQueue(IComparer<T> comparer)
 		{
+			if (comparer == null)
+			{
+				throw new ArgumentNullException();
+			}
+
 			this.queue = new T[InitialCapacity];
 			this.Count = 0;
 			this.comparer = comparer;
@@ -27,6 +32,11 @@ namespace DataStructures.PriorityQueues
 
 		public PriorityQueue(T[] keys)
 		{
+			if (keys == null)
+			{
+				throw new ArgumentNullException();
+			}
+
 			this.queue = new T[InitialCapacity];
 			this.Count = 0;
 			this.comparer = null;
@@ -38,6 +48,11 @@ namespace DataStructures.PriorityQueues
 
 		public PriorityQueue(IEnumerable<T> keys)
 		{
+			if (keys == null)
+			{
+				throw new ArgumentNullException();
+			}
+
 			this.queue = new T[InitialCapacity];
 			this.Count = 0;
 			this.comparer = null;
@@ -59,6 +74,11 @@ namespace DataStructures.PriorityQueues
 
 		public void Enqueue(T key)
 		{
+			if (key == null)
+			{
+				throw new ArgumentNullException();
+			}
+
 			if (isFull())
 			{
 				resize(2 * this.queue.Length);

@@ -12,14 +12,19 @@ namespace DataStructures.Graphs
 
 		public BreadthFirstSearch(IGraph<TVertex> graph)
 		{
+			if (graph == null)
+			{
+				throw new ArgumentNullException();
+			}
+
 			this.graph = graph;
 		}
 
 		public IEnumerable<TVertex> GetReachableVertices(TVertex source)
 		{
-			if (this.graph == null || source == null)
+			if (!this.graph.ContainsVertex(source))
 			{
-				throw new ArgumentNullException();
+				throw new ArgumentException("Vertex not contained in graph");
 			}
 
 			HashSet<TVertex> visited = new HashSet<TVertex> { source };
