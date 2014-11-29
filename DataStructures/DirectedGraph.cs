@@ -21,10 +21,7 @@ namespace DataStructures.Graphs
 
 		public IEnumerable<TVertex> GetVertices()
 		{
-			foreach(TVertex vertex in this.adjacencyList.Keys)
-			{
-				yield return vertex;
-			}
+			return this.adjacencyList.Keys;
 		}
 
 		public void AddVertex(TVertex vertex)
