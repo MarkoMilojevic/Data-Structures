@@ -32,9 +32,9 @@ namespace DataStructures.Graphs
 			queue.Enqueue(source);
 			while (queue.Count > 0)
 			{
-				TVertex nextVertexToExpand = queue.Dequeue();
-				yield return nextVertexToExpand;
-				foreach (TVertex vertex in graph.GetNeighbours(nextVertexToExpand).Where(vertex => !visited.Contains(vertex)))
+				TVertex toSpan = queue.Dequeue();
+				yield return toSpan;
+				foreach (TVertex vertex in graph.GetNeighbours(toSpan).Where(v => !visited.Contains(v)))
 				{
 					visited.Add(vertex);
 					queue.Enqueue(vertex);

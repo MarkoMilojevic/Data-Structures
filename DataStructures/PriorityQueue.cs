@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace DataStructures.PriorityQueues
 {
-	public class PriorityQueue<T> where T : IComparable<T>
+	public class PriorityQueue<T>
 	{
 		private const int InitialCapacity = 100;
 		private T[] queue;
@@ -12,55 +12,29 @@ namespace DataStructures.PriorityQueues
 		private IComparer<T> comparer;
 		public int Count { get; private set; }
 
-		public PriorityQueue()
-		{
-			this.queue = new T[InitialCapacity];
-			this.indices = new Dictionary<T, int>();
-			this.Count = 0;
-			this.comparer = null;
+		public PriorityQueue() : this(Enumerable.Empty<T>(), Comparer<T>.Default)
+		{			
 		}
 
-		public PriorityQueue(IComparer<T> comparer)
+		public PriorityQueue(IEnumerable<T> keys) : this(keys, Comparer<T>.Default)
 		{
-			if (comparer == null)
+		}
+
+		public PriorityQueue(IComparer<T> comparer) : this(Enumerable.Empty<T>(), comparer)
+		{
+		}
+
+		public PriorityQueue(IEnumerable<T> keys, IComparer<T> comparer)
+		{
+			if (keys == null || comparer == null)
 			{
 				throw new ArgumentNullException();
 			}
 
 			this.queue = new T[InitialCapacity];
 			this.indices = new Dictionary<T, int>();
-			this.Count = 0;
 			this.comparer = comparer;
-		}
-
-		public PriorityQueue(T[] keys)
-		{
-			if (keys == null)
-			{
-				throw new ArgumentNullException();
-			}
-
-			this.queue = new T[InitialCapacity];
-			this.indices = new Dictionary<T, int>();
 			this.Count = 0;
-			this.comparer = null;
-			foreach (T key in keys)
-			{
-				this.Enqueue(key);
-			}
-		}
-
-		public PriorityQueue(IEnumerable<T> keys)
-		{
-			if (keys == null)
-			{
-				throw new ArgumentNullException();
-			}
-
-			this.queue = new T[InitialCapacity];
-			this.indices = new Dictionary<T, int>();
-			this.Count = 0;
-			this.comparer = null;
 			foreach (T key in keys)
 			{
 				this.Enqueue(key);
@@ -89,31 +63,31 @@ namespace DataStructures.PriorityQueues
 				throw new ArgumentNullException();
 			}
 
-			if (isFull())
+			if (this.isFull())
 			{
-				resize(2 * this.queue.Length);
+				this.resize(2 * this.queue.Length);
 			}
 
 			this.queue[++this.Count] = key;
 			this.indices[key] = this.Count;
-			swim(this.Count);
+			this.bubbleUp(this.Count);
 		}
 
 		public T Dequeue()
 		{
 			if (this.IsEmpty())
 			{
-				throw new InvalidOperationException("Priority queue underflow");
+				throw new InvalidOperationException("Queue is empty");
 			}
 
-			swap(1, this.Count);
+			this.swap(1, this.Count);
 			T result = this.queue[this.Count--];
-			sink(1);
+			this.bubbleDown(1);
 			this.indices.Remove(result);
 			this.queue[this.Count + 1] = default(T);
 			if (this.Count > 0 && this.Count == (this.queue.Length - 1) / 4)
 			{
-				resize(this.queue.Length / 2);
+				this.resize(this.queue.Length / 2);
 			}
 
 			return result;
@@ -131,15 +105,15 @@ namespace DataStructures.PriorityQueues
 				throw new ArgumentException("No such key");
 			}
 
-			int pos = this.indices[key];
-			swap(pos, this.Count);
+			int keyIndex = this.indices[key];
+			this.swap(keyIndex, this.Count);
 			T result = this.queue[this.Count--];
-			sink(pos);
+			this.bubbleDown(keyIndex);
 			this.queue[this.Count + 1] = default(T);
 			this.indices.Remove(result);
 			if (this.Count > 0 && this.Count == (this.queue.Length - 1) / 4)
 			{
-				resize(this.queue.Length / 2);
+				this.resize(this.queue.Length / 2);
 			}
 
 			return result;
@@ -161,46 +135,39 @@ namespace DataStructures.PriorityQueues
 			this.queue = newQueue;
 		}
 
-		private void sink(int k)
+		private bool isGreater(int i, int j)
 		{
-			while (2 * k <= this.Count)
-			{
-				int i = 2 * k;
-				if (i < this.Count && isGreater(i, i + 1))
-				{
-					i++;
-				}
+			return this.comparer.Compare(this.queue[i], this.queue[j]) > 0;
+		}
 
-				if (!isGreater(k, i))
-				{
-					break;
-				}
-
-				swap(k, i);
-				k = i;
-			}
-		}		
-
-		private void swim(int k)
+		private void bubbleUp(int k)
 		{
-			while (k > 1 && isGreater(k / 2, k))
+			while (k > 1 && this.isGreater(k / 2, k))
 			{
-				swap(k, k / 2);
+				this.swap(k, k / 2);
 				k = k / 2;
 			}
 		}
 
-		private bool isGreater(int i, int j)
+		private void bubbleDown(int k)
 		{
-			if (this.comparer == null)
+			while (2 * k <= this.Count)
 			{
-				return (this.queue[i]).CompareTo(this.queue[j]) > 0;
+				int i = 2 * k;
+				if (i < this.Count && this.isGreater(i, i + 1))
+				{
+					i++;
+				}
+
+				if (!this.isGreater(k, i))
+				{
+					break;
+				}
+
+				this.swap(k, i);
+				k = i;
 			}
-			else
-			{
-				return comparer.Compare(this.queue[i], this.queue[j]) > 0;
-			}
-		}
+		}				
 
 		private void swap(int i, int j)
 		{

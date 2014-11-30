@@ -17,15 +17,13 @@ namespace DataStructures.UnionFind
 			rankMap = new Dictionary<T, int>();
 		}
 
-		public UnionFind(ISet<T> elements)
+		public UnionFind(ISet<T> elements) : this()
 		{
 			if (elements == null)
 			{
 				throw new ArgumentNullException();
 			}
 
-			parentMap = new Dictionary<T, T>();
-			rankMap = new Dictionary<T, int>();
 			foreach (T element in elements)
 			{
 				parentMap.Add(element, element);
@@ -35,11 +33,6 @@ namespace DataStructures.UnionFind
 
 		public void Add(T element)
 		{
-			if (parentMap.ContainsKey(element))
-			{
-				throw new ArgumentException("Element already in the set");
-			}
-
 			parentMap.Add(element, element);
 			rankMap.Add(element, 1);
 		}
@@ -69,11 +62,6 @@ namespace DataStructures.UnionFind
 
 		public void Union(T element1, T element2)
 		{
-			if (!parentMap.ContainsKey(element1) || !parentMap.ContainsKey(element2))
-			{
-				throw new ArgumentException("Elements not found");
-			}
-
 			T parent1 = Find(element1);
 			T parent2 = Find(element2);
 			if (!parent1.Equals(parent2))

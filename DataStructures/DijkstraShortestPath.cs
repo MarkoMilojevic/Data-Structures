@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataStructures.Graphs
 {
@@ -12,30 +10,17 @@ namespace DataStructures.Graphs
 		private class QueueItem : IComparable<QueueItem>
 		{
 			public TVertex Vertex;
-			public TVertex Predecessor;
-			public double DijkstrasGreedyScore;
+			public double PathCostFromSource;
 
-			public QueueItem(TVertex vertex, TVertex predecessor, double dijkstrasGreedyScore)
+			public QueueItem(TVertex vertex, double pathCostFromSource)
 			{
 				this.Vertex = vertex;
-				this.Predecessor = predecessor;
-				this.DijkstrasGreedyScore = dijkstrasGreedyScore;
+				this.PathCostFromSource = pathCostFromSource;
 			}
 
 			public int CompareTo(QueueItem key)
 			{
-				double result = this.DijkstrasGreedyScore - key.DijkstrasGreedyScore;
-				if (result < 0)
-				{
-					return -1;
-				}
-
-				if (result == 0)
-				{
-					return 0;
-				}
-
-				return 1;
+				return this.PathCostFromSource.CompareTo(key.PathCostFromSource);
 			}
 		}
 
@@ -58,47 +43,45 @@ namespace DataStructures.Graphs
 				throw new ArgumentException("Vertex not contained in graph");
 			}
 
-			Dictionary<TVertex, TVertex> parentMap = new Dictionary<TVertex, TVertex>();
-			Dictionary<TVertex, QueueItem> itemsMap = new Dictionary<TVertex, QueueItem>();
 			PriorityQueue<QueueItem> queue = new PriorityQueue<QueueItem>();
+			Dictionary<TVertex, QueueItem> itemsMap = new Dictionary<TVertex, QueueItem>();
+			Dictionary<TVertex, TVertex> parentsMap = new Dictionary<TVertex, TVertex>();
 			foreach (TVertex vertex in this.graph.GetVertices().Where(v => !v.Equals(source)))
 			{
-				double edgeWeightFromSource = this.graph.GetEdgeWeight(source, vertex);
-				TVertex vertexPredecessor = edgeWeightFromSource < double.PositiveInfinity ? source : default(TVertex);
-				QueueItem item = new QueueItem(vertex, vertexPredecessor, edgeWeightFromSource);
+				double pathCostFromSource = this.graph.GetEdgeWeight(source, vertex);
+				QueueItem item = new QueueItem(vertex, pathCostFromSource);
 				queue.Enqueue(item);
 				itemsMap.Add(vertex, item);
-				if (edgeWeightFromSource < double.PositiveInfinity)
+				if (pathCostFromSource < double.PositiveInfinity)
 				{
-					parentMap.Add(vertex, source);
+					parentsMap.Add(vertex, source);
 				}
 			}
 
 			while (!queue.IsEmpty())
 			{
 				QueueItem toSpan = queue.Dequeue();
-				if (Double.IsPositiveInfinity(toSpan.DijkstrasGreedyScore))
+				if (Double.IsPositiveInfinity(toSpan.PathCostFromSource))
 				{
 					break;
 				}
-
-				parentMap[toSpan.Vertex] = toSpan.Predecessor;
+				
 				itemsMap.Remove(toSpan.Vertex);
 				foreach (TVertex vertex in this.graph.GetNeighbours(toSpan.Vertex).Where(v => itemsMap.ContainsKey(v)))
 				{
 					QueueItem toRelax = queue.Dequeue(itemsMap[vertex]);
-					double edgeCost = this.graph.GetEdgeWeight(toSpan.Vertex, vertex);
-					if (toSpan.DijkstrasGreedyScore + edgeCost < toRelax.DijkstrasGreedyScore)
+					double edgeWeight = this.graph.GetEdgeWeight(toSpan.Vertex, vertex);
+					if (toSpan.PathCostFromSource + edgeWeight < toRelax.PathCostFromSource)
 					{
-						toRelax.DijkstrasGreedyScore = toSpan.DijkstrasGreedyScore + edgeCost;
-						toRelax.Predecessor = toSpan.Vertex;
+						toRelax.PathCostFromSource = toSpan.PathCostFromSource + edgeWeight;
+						parentsMap[toRelax.Vertex] = toSpan.Vertex;
 					}
 
 					queue.Enqueue(toRelax);
 				}
 			}
 
-			return parentMap;
+			return parentsMap;
 		}
 	}
 }
