@@ -8,14 +8,13 @@ namespace DataStructures.Graphs
 {
 	public class DirectedWeightedGraph<TVertex> : IGraph<TVertex>
 	{
-		private Dictionary<TVertex, List<DirectedWeightedEdge<TVertex>>> adjacencyList;
-		public int VertexCount { get; protected set; }
+		private Dictionary<TVertex, Dictionary<TVertex, double>> adjacencyList;
+		public int VertexCount { get { return adjacencyList.Count; } }
 		public int EdgeCount { get; protected set; }
 
 		public DirectedWeightedGraph()
 		{
-			this.adjacencyList = new Dictionary<TVertex, List<DirectedWeightedEdge<TVertex>>>();
-			this.VertexCount = 0;
+			this.adjacencyList = new Dictionary<TVertex, Dictionary<TVertex, double>>();
 			this.EdgeCount = 0;
 		}
 
@@ -28,8 +27,7 @@ namespace DataStructures.Graphs
 		{
 			if (!this.ContainsVertex(vertex))
 			{
-				this.adjacencyList.Add(vertex, new List<DirectedWeightedEdge<TVertex>>());
-				this.VertexCount++;
+				this.adjacencyList.Add(vertex, new Dictionary<TVertex, double>());
 			}
 		}
 
@@ -37,13 +35,14 @@ namespace DataStructures.Graphs
 		{
 			if (this.ContainsVertex(vertex))
 			{
-				foreach (List<DirectedWeightedEdge<TVertex>> edges in this.adjacencyList.Values)
-				{
-					edges.RemoveAll(e => e.Target.Equals(vertex));
-				}
-
 				this.adjacencyList.Remove(vertex);
-				this.VertexCount--;
+				foreach (TVertex v in this.adjacencyList.Keys)
+				{
+					if (this.ContainsEdge(v, vertex))
+					{
+						this.RemoveEdge(v, vertex);
+					}
+				}
 			}
 		}
 
@@ -54,7 +53,12 @@ namespace DataStructures.Graphs
 
 		public IEnumerable<TVertex> GetNeighbours(TVertex vertex)
 		{
-			return this.ContainsVertex(vertex) ? this.adjacencyList[vertex].Select(edge => edge.Target) : Enumerable.Empty<TVertex>();
+			if (!this.ContainsVertex(vertex))
+			{
+				throw new ArgumentException("Vertex not contained in graph");
+			}
+
+			return this.adjacencyList[vertex].Keys;
 		}
 
 		public void AddEdge(TVertex source, TVertex target, double weight)
@@ -66,13 +70,12 @@ namespace DataStructures.Graphs
 
 			if (source.Equals(target))
 			{
-				throw new ArgumentException("Self-loops are not allowed");
+				throw new ArgumentException("Self-loops not allowed");
 			}
 
 			if (!this.ContainsEdge(source, target))
 			{
-				DirectedWeightedEdge<TVertex> edge = new DirectedWeightedEdge<TVertex>(source, target, weight);
-				this.adjacencyList[source].Add(edge);
+				this.adjacencyList[source].Add(target, weight);
 				this.EdgeCount++;
 			}
 		}
@@ -81,16 +84,16 @@ namespace DataStructures.Graphs
 		{
 			if (this.ContainsEdge(source, target))
 			{
-				this.adjacencyList[source].RemoveAll(e => e.Target.Equals(target));
+				this.adjacencyList[source].Remove(target);
 				this.EdgeCount--;
 			}
 		}
 
 		public double GetEdgeWeight(TVertex source, TVertex target)
 		{
-			if (source == null || target == null)
+			if (!this.ContainsEdge(source, target))
 			{
-				throw new ArgumentNullException();
+				return double.PositiveInfinity;
 			}
 
 			if (source.Equals(target))
@@ -98,18 +101,13 @@ namespace DataStructures.Graphs
 				return 0;
 			}
 
-			if (!this.ContainsEdge(source, target))
-			{
-				return double.PositiveInfinity;
-			}
-
-			return this.adjacencyList[source].Find(e => e.Target.Equals(target)).Weight;
+			return this.adjacencyList[source][target];
 		}
 
 		public bool ContainsEdge(TVertex source, TVertex target)
 		{
 			return this.ContainsVertex(source) && this.ContainsVertex(target)
-				&& this.adjacencyList[source].Any(e => e.Target.Equals(target));
+				&& this.adjacencyList[source].ContainsKey(target);
 		}
 	}
 }

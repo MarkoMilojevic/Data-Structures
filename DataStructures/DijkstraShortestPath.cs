@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataStructures.PriorityQueues;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,36 @@ namespace DataStructures.Graphs
 {
 	public class DijkstraShortestPath<TVertex>
 	{
+		private class QueueItem : IComparable<QueueItem>
+		{
+			public TVertex Vertex;
+			public TVertex Predecessor;
+			public double DijkstrasGreedyScore;
+
+			public QueueItem(TVertex vertex, TVertex predecessor, double dijkstrasGreedyScore)
+			{
+				this.Vertex = vertex;
+				this.Predecessor = predecessor;
+				this.DijkstrasGreedyScore = dijkstrasGreedyScore;
+			}
+
+			public int CompareTo(QueueItem key)
+			{
+				double result = this.DijkstrasGreedyScore - key.DijkstrasGreedyScore;
+				if (result < 0)
+				{
+					return -1;
+				}
+
+				if (result == 0)
+				{
+					return 0;
+				}
+
+				return 1;
+			}
+		}
+
 		private DirectedWeightedGraph<TVertex> graph;
 
 		public DijkstraShortestPath(DirectedWeightedGraph<TVertex> graph)
@@ -27,55 +58,43 @@ namespace DataStructures.Graphs
 				throw new ArgumentException("Vertex not contained in graph");
 			}
 
-			Dictionary<TVertex, double> shortestPathsFromSource = new Dictionary<TVertex, double>();
-			shortestPathsFromSource.Add(source, 0);
 			Dictionary<TVertex, TVertex> parentMap = new Dictionary<TVertex, TVertex>();
+			Dictionary<TVertex, QueueItem> itemsMap = new Dictionary<TVertex, QueueItem>();
+			PriorityQueue<QueueItem> queue = new PriorityQueue<QueueItem>();
 			foreach (TVertex vertex in this.graph.GetVertices().Where(v => !v.Equals(source)))
 			{
 				double edgeWeightFromSource = this.graph.GetEdgeWeight(source, vertex);
-				shortestPathsFromSource.Add(vertex, edgeWeightFromSource);
+				TVertex vertexPredecessor = edgeWeightFromSource < double.PositiveInfinity ? source : default(TVertex);
+				QueueItem item = new QueueItem(vertex, vertexPredecessor, edgeWeightFromSource);
+				queue.Enqueue(item);
+				itemsMap.Add(vertex, item);
 				if (edgeWeightFromSource < double.PositiveInfinity)
 				{
 					parentMap.Add(vertex, source);
 				}
 			}
 
-			HashSet<TVertex> visited = new HashSet<TVertex> { source };
-			while (visited.Count < this.graph.VertexCount)
+			while (!queue.IsEmpty())
 			{
-				TVertex closestVertex = default(TVertex);
-				TVertex closestVertexPredecessor = default(TVertex);
-				double distanceToClosestVertex = double.PositiveInfinity;
-				bool expanded = false;
-				foreach (TVertex vertex in this.graph.GetVertices().Where(v => visited.Contains(v)))
-				{
-					foreach (TVertex neighbour in this.graph.GetNeighbours(vertex).Where(v => !visited.Contains(v)))
-					{
-						double edgeWeight = this.graph.GetEdgeWeight(vertex, neighbour);
-						if (shortestPathsFromSource[vertex] + edgeWeight < distanceToClosestVertex)
-						{
-							distanceToClosestVertex = shortestPathsFromSource[vertex] + edgeWeight;
-							closestVertex = neighbour;
-							closestVertexPredecessor = vertex;
-							expanded = true;
-						}
-					}
-				}
-
-				if (!expanded)
+				QueueItem toSpan = queue.Dequeue();
+				if (Double.IsPositiveInfinity(toSpan.DijkstrasGreedyScore))
 				{
 					break;
 				}
-				
-				visited.Add(closestVertex);
-				shortestPathsFromSource[closestVertex] = distanceToClosestVertex;
-				if (parentMap.ContainsKey(closestVertex))
+
+				parentMap[toSpan.Vertex] = toSpan.Predecessor;
+				itemsMap.Remove(toSpan.Vertex);
+				foreach (TVertex vertex in this.graph.GetNeighbours(toSpan.Vertex).Where(v => itemsMap.ContainsKey(v)))
 				{
-					parentMap[closestVertex] = closestVertexPredecessor;
-				}
-				else
-				{
-					parentMap.Add(closestVertex, closestVertexPredecessor);
+					QueueItem toRelax = queue.Dequeue(itemsMap[vertex]);
+					double edgeCost = this.graph.GetEdgeWeight(toSpan.Vertex, vertex);
+					if (toSpan.DijkstrasGreedyScore + edgeCost < toRelax.DijkstrasGreedyScore)
+					{
+						toRelax.DijkstrasGreedyScore = toSpan.DijkstrasGreedyScore + edgeCost;
+						toRelax.Predecessor = toSpan.Vertex;
+					}
+
+					queue.Enqueue(toRelax);
 				}
 			}
 

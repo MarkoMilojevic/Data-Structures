@@ -8,14 +8,13 @@ namespace DataStructures.Graphs
 {
 	public class DirectedGraph<TVertex> : IGraph<TVertex>
 	{
-		private Dictionary<TVertex, List<DirectedEdge<TVertex>>> adjacencyList;
-		public int VertexCount { get; protected set; }
+		private Dictionary<TVertex, HashSet<TVertex>> adjacencyList;
+		public int VertexCount { get { return adjacencyList.Count; } }
 		public int EdgeCount { get; protected set; }
 
 		public DirectedGraph()
 		{
-			this.adjacencyList = new Dictionary<TVertex, List<DirectedEdge<TVertex>>>();
-			this.VertexCount = 0;
+			this.adjacencyList = new Dictionary<TVertex, HashSet<TVertex>>();
 			this.EdgeCount = 0;
 		}
 
@@ -28,8 +27,7 @@ namespace DataStructures.Graphs
 		{
 			if (!this.ContainsVertex(vertex))
 			{
-				this.adjacencyList.Add(vertex, new List<DirectedEdge<TVertex>>());
-				this.VertexCount++;
+				this.adjacencyList.Add(vertex, new HashSet<TVertex>());
 			}
 		}
 
@@ -37,13 +35,14 @@ namespace DataStructures.Graphs
 		{
 			if (this.ContainsVertex(vertex))
 			{
-				foreach (List<DirectedEdge<TVertex>> edges in this.adjacencyList.Values)
-				{
-					edges.RemoveAll(e => e.Target.Equals(vertex));
-				}
-
 				this.adjacencyList.Remove(vertex);
-				this.VertexCount--;
+				foreach (TVertex v in this.adjacencyList.Keys)
+				{
+					if (this.ContainsEdge(v, vertex))
+					{
+						this.RemoveEdge(v, vertex);
+					}
+				}
 			}
 		}
 
@@ -54,7 +53,12 @@ namespace DataStructures.Graphs
 
 		public IEnumerable<TVertex> GetNeighbours(TVertex vertex)
 		{
-			return this.ContainsVertex(vertex) ? this.adjacencyList[vertex].Select(edge => edge.Target) : Enumerable.Empty<TVertex>();
+			if (!this.ContainsVertex(vertex))
+			{
+				throw new ArgumentException("Vertex not contained in graph");
+			}
+			
+			return this.adjacencyList[vertex];
 		}
 
 		public void AddEdge(TVertex source, TVertex target)
@@ -71,8 +75,7 @@ namespace DataStructures.Graphs
 
 			if (!this.ContainsEdge(source, target))
 			{
-				DirectedEdge<TVertex> edge = new DirectedEdge<TVertex>(source, target);
-				this.adjacencyList[source].Add(edge);
+				this.adjacencyList[source].Add(target);
 				this.EdgeCount++;
 			}
 		}
@@ -81,7 +84,7 @@ namespace DataStructures.Graphs
 		{
 			if (this.ContainsEdge(source, target))
 			{
-				this.adjacencyList[source].RemoveAll(e => e.Target.Equals(target));
+				this.adjacencyList[source].Remove(target);
 				this.EdgeCount--;
 			}
 		}
@@ -89,7 +92,7 @@ namespace DataStructures.Graphs
 		public bool ContainsEdge(TVertex source, TVertex target)
 		{
 			return this.ContainsVertex(source) && this.ContainsVertex(target)
-				&& this.adjacencyList[source].Any(e => e.Target.Equals(target));
+				&& this.adjacencyList[source].Contains(target);
 		}
 	}
 }

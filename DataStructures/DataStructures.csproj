@@ -41,9 +41,7 @@
   <ItemGroup>
     <Compile Include="BreadthFirstSearch.cs" />
     <Compile Include="DijkstraShortestPath.cs" />
-    <Compile Include="DirectedEdge.cs" />
     <Compile Include="DirectedGraph.cs" />
-    <Compile Include="DirectedWeightedEdge.cs" />
     <Compile Include="DirectedWeightedGraph.cs" />
     <Compile Include="IGraph.cs" />
     <Compile Include="PriorityQueue.cs" />

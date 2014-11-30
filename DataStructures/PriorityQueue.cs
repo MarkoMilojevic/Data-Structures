@@ -8,12 +8,14 @@ namespace DataStructures.PriorityQueues
 	{
 		private const int InitialCapacity = 100;
 		private T[] queue;
+		private Dictionary<T, int> indices;
 		private IComparer<T> comparer;
 		public int Count { get; private set; }
 
 		public PriorityQueue()
 		{
 			this.queue = new T[InitialCapacity];
+			this.indices = new Dictionary<T, int>();
 			this.Count = 0;
 			this.comparer = null;
 		}
@@ -26,6 +28,7 @@ namespace DataStructures.PriorityQueues
 			}
 
 			this.queue = new T[InitialCapacity];
+			this.indices = new Dictionary<T, int>();
 			this.Count = 0;
 			this.comparer = comparer;
 		}
@@ -38,6 +41,7 @@ namespace DataStructures.PriorityQueues
 			}
 
 			this.queue = new T[InitialCapacity];
+			this.indices = new Dictionary<T, int>();
 			this.Count = 0;
 			this.comparer = null;
 			foreach (T key in keys)
@@ -54,6 +58,7 @@ namespace DataStructures.PriorityQueues
 			}
 
 			this.queue = new T[InitialCapacity];
+			this.indices = new Dictionary<T, int>();
 			this.Count = 0;
 			this.comparer = null;
 			foreach (T key in keys)
@@ -62,9 +67,14 @@ namespace DataStructures.PriorityQueues
 			}
 		}
 
+		public bool IsEmpty()
+		{
+			return this.Count == 0;
+		}
+
 		public T Peek()
 		{
-			if (this.Count == 0)
+			if (this.IsEmpty())
 			{
 				throw new InvalidOperationException("Priority queue underflow");
 			}
@@ -85,12 +95,13 @@ namespace DataStructures.PriorityQueues
 			}
 
 			this.queue[++this.Count] = key;
+			this.indices[key] = this.Count;
 			swim(this.Count);
 		}
 
 		public T Dequeue()
 		{
-			if (this.Count == 0)
+			if (this.IsEmpty())
 			{
 				throw new InvalidOperationException("Priority queue underflow");
 			}
@@ -98,7 +109,34 @@ namespace DataStructures.PriorityQueues
 			swap(1, this.Count);
 			T result = this.queue[this.Count--];
 			sink(1);
+			this.indices.Remove(result);
 			this.queue[this.Count + 1] = default(T);
+			if (this.Count > 0 && this.Count == (this.queue.Length - 1) / 4)
+			{
+				resize(this.queue.Length / 2);
+			}
+
+			return result;
+		}
+
+		public T Dequeue(T key)
+		{
+			if (this.IsEmpty())
+			{
+				throw new InvalidOperationException("Priority queue underflow");
+			}
+
+			if (!this.indices.ContainsKey(key))
+			{
+				throw new ArgumentException("No such key");
+			}
+
+			int pos = this.indices[key];
+			swap(pos, this.Count);
+			T result = this.queue[this.Count--];
+			sink(pos);
+			this.queue[this.Count + 1] = default(T);
+			this.indices.Remove(result);
 			if (this.Count > 0 && this.Count == (this.queue.Length - 1) / 4)
 			{
 				resize(this.queue.Length / 2);
@@ -169,6 +207,8 @@ namespace DataStructures.PriorityQueues
 			T swapper = this.queue[i];
 			this.queue[i] = this.queue[j];
 			this.queue[j] = swapper;
+			this.indices[this.queue[i]] = i;
+			this.indices[this.queue[j]] = j;
 		}
 	}
 }
