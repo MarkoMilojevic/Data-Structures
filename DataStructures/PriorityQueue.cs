@@ -50,7 +50,7 @@ namespace DataStructures.PriorityQueues
 		{
 			if (this.IsEmpty())
 			{
-				throw new InvalidOperationException("Priority queue underflow");
+				throw new InvalidOperationException("Queue is empty");
 			}
 			
 			return this.queue[1];
@@ -97,7 +97,7 @@ namespace DataStructures.PriorityQueues
 		{
 			if (this.IsEmpty())
 			{
-				throw new InvalidOperationException("Priority queue underflow");
+				throw new InvalidOperationException("Queue is empty");
 			}
 
 			if (!this.indices.ContainsKey(key))
