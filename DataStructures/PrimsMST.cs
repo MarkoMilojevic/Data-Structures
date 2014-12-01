@@ -1,13 +1,31 @@
-﻿using System;
+﻿using DataStructures.PriorityQueues;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataStructures.Graphs
 {
 	public class PrimsMST<TVertex>
 	{
+		private class QueueItem : IComparable<QueueItem>
+		{
+			public TVertex VertexToSpan;
+			public TVertex Source;
+			public double CostToSpan;
+
+			public QueueItem(TVertex target, TVertex source, double costToSpan)
+			{
+				this.VertexToSpan = target;
+				this.Source = source;
+				this.CostToSpan = costToSpan;
+			}
+
+			public int CompareTo(QueueItem key)
+			{
+				return this.CostToSpan.CompareTo(key.CostToSpan);
+			}
+		}
+
 		private UndirectedAcyclicWeightedGraph<TVertex> graph;
 
 		public PrimsMST(UndirectedAcyclicWeightedGraph<TVertex> graph)
@@ -29,29 +47,39 @@ namespace DataStructures.Graphs
 			}
 
 			TVertex source = this.graph.GetVertices().First();
-			HashSet<TVertex> visited = new HashSet<TVertex> { source };
-			bool expanding = true;
-			while (expanding && visited.Count < this.graph.VertexCount)
+			PriorityQueue<QueueItem> queue = new PriorityQueue<QueueItem>();
+			Dictionary<TVertex, QueueItem> itemsMap = new Dictionary<TVertex, QueueItem>();
+			foreach(TVertex vertex in this.graph.GetVertices().Where(v => !v.Equals(source)))
 			{
-				double minCost = double.PositiveInfinity;
-				Tuple<TVertex, TVertex> edge = new Tuple<TVertex, TVertex>(default(TVertex), default(TVertex));
-				expanding = false;
-				foreach (TVertex vertex in this.graph.GetVertices().Where(v => visited.Contains(v)))
+				double costToSpan = this.graph.GetEdgeWeight(source, vertex);
+				TVertex src = costToSpan < double.PositiveInfinity ? source : default(TVertex);
+				QueueItem item = new QueueItem(vertex, src, costToSpan);
+				queue.Enqueue(item);
+				itemsMap.Add(vertex, item);
+			}
+
+			while (!queue.IsEmpty())
+			{
+				QueueItem toSpan = queue.Dequeue();
+				if (Double.IsPositiveInfinity(toSpan.CostToSpan))
 				{
-					foreach (TVertex neighbour in this.graph.GetNeighbours(vertex).Where(v => !visited.Contains(v)))
-					{
-						double edgeCost = this.graph.GetEdgeWeight(vertex, neighbour);
-						if (edgeCost < minCost)
-						{
-							minCost = edgeCost;
-							edge = new Tuple<TVertex, TVertex>(vertex, neighbour);
-							expanding = true;
-						}
-					}
+					throw new ArgumentException("Graph not connected");
 				}
 
-				mst.Add(edge);
-				visited.Add(edge.Item2);
+				mst.Add(new Tuple<TVertex, TVertex>(toSpan.Source, toSpan.VertexToSpan));
+				itemsMap.Remove(toSpan.VertexToSpan);
+				foreach (TVertex vertex in this.graph.GetNeighbours(toSpan.VertexToSpan).Where(v => itemsMap.ContainsKey(v)))
+				{
+					QueueItem toRelax = queue.Dequeue(itemsMap[vertex]);
+					double costToSpan = this.graph.GetEdgeWeight(toSpan.VertexToSpan, vertex);
+					if (costToSpan < toRelax.CostToSpan)
+					{
+						toRelax.CostToSpan = costToSpan;
+						toRelax.Source = toSpan.VertexToSpan;
+					}
+
+					queue.Enqueue(toRelax);
+				}
 			}
 
 			return mst;

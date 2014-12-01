@@ -9,12 +9,12 @@ namespace DataStructures.Graphs
 	{
 		private class QueueItem : IComparable<QueueItem>
 		{
-			public TVertex Vertex;
+			public TVertex VertexToSpan;
 			public double PathCostFromSource;
 
-			public QueueItem(TVertex vertex, double pathCostFromSource)
+			public QueueItem(TVertex vertexToSpan, double pathCostFromSource)
 			{
-				this.Vertex = vertex;
+				this.VertexToSpan = vertexToSpan;
 				this.PathCostFromSource = pathCostFromSource;
 			}
 
@@ -66,15 +66,15 @@ namespace DataStructures.Graphs
 					break;
 				}
 				
-				itemsMap.Remove(toSpan.Vertex);
-				foreach (TVertex vertex in this.graph.GetNeighbours(toSpan.Vertex).Where(v => itemsMap.ContainsKey(v)))
+				itemsMap.Remove(toSpan.VertexToSpan);
+				foreach (TVertex vertex in this.graph.GetNeighbours(toSpan.VertexToSpan).Where(v => itemsMap.ContainsKey(v)))
 				{
 					QueueItem toRelax = queue.Dequeue(itemsMap[vertex]);
-					double edgeWeight = this.graph.GetEdgeWeight(toSpan.Vertex, vertex);
+					double edgeWeight = this.graph.GetEdgeWeight(toSpan.VertexToSpan, vertex);
 					if (toSpan.PathCostFromSource + edgeWeight < toRelax.PathCostFromSource)
 					{
 						toRelax.PathCostFromSource = toSpan.PathCostFromSource + edgeWeight;
-						parentsMap[toRelax.Vertex] = toSpan.Vertex;
+						parentsMap[toRelax.VertexToSpan] = toSpan.VertexToSpan;
 					}
 
 					queue.Enqueue(toRelax);
