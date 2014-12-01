@@ -24,9 +24,9 @@ namespace DataStructures.Graphs
 			}
 		}
 
-		private DirectedWeightedGraph<TVertex> graph;
+		private IWeightedGraph<TVertex> graph;
 
-		public DijkstraShortestPath(DirectedWeightedGraph<TVertex> graph)
+		public DijkstraShortestPath(IWeightedGraph<TVertex> graph)
 		{
 			if (graph == null)
 			{

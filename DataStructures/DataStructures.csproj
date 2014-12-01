@@ -41,11 +41,17 @@
   <ItemGroup>
     <Compile Include="BreadthFirstSearch.cs" />
     <Compile Include="DijkstraShortestPath.cs" />
-    <Compile Include="DirectedGraph.cs" />
-    <Compile Include="DirectedWeightedGraph.cs" />
+    <Compile Include="DirectedAcyclicGraph.cs" />
+    <Compile Include="DirectedAcyclicWeightedGraph.cs" />
+    <Compile Include="IDirectedGraph.cs" />
     <Compile Include="IGraph.cs" />
+    <Compile Include="IUndirectedGraph.cs" />
+    <Compile Include="IWeightedGraph.cs" />
+    <Compile Include="PrimsMST.cs" />
     <Compile Include="PriorityQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UndirectedAcyclicGraph.cs" />
+    <Compile Include="UndirectedAcyclicWeightedGraph.cs" />
     <Compile Include="UnionFind.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
