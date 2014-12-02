@@ -29,38 +29,36 @@ namespace DataStructures.Graphs
 			}
 		}
 
-		private UndirectedAcyclicWeightedGraph<TVertex> graph;
-
-		public KruskalsMST(UndirectedAcyclicWeightedGraph<TVertex> graph)
+		public static IEnumerable<Tuple<TVertex, TVertex>> GetMST(UndirectedAcyclicWeightedGraph<TVertex> graph)
 		{
 			if (graph == null)
 			{
 				throw new ArgumentNullException();
 			}
 
-			this.graph = graph;
-		}
+			if (graph.VertexCount == 0)
+			{
+				yield break;
+			}
 
-		public List<Tuple<TVertex, TVertex>> GetMST()
-		{
-			List<Tuple<TVertex, TVertex>> mst = new List<Tuple<TVertex, TVertex>>();
 			PriorityQueue<Edge> queue = new PriorityQueue<Edge>();
 			UnionFind<TVertex> connectedComponents = new UnionFind<TVertex>();
-			foreach(TVertex vertex in this.graph.GetVertices())
+			foreach(TVertex vertex in graph.GetVertices())
 			{
 				connectedComponents.Add(vertex);
-				foreach(TVertex neighbour in this.graph.GetNeighbours(vertex))
+				foreach(TVertex neighbour in graph.GetNeighbours(vertex))
 				{
-					queue.Enqueue(new Edge(vertex, neighbour, this.graph.GetEdgeWeight(vertex, neighbour)));
+					queue.Enqueue(new Edge(vertex, neighbour, graph.GetEdgeWeight(vertex, neighbour)));
 				}
 			}
 
+			List<Tuple<TVertex, TVertex>> mst = new List<Tuple<TVertex, TVertex>>();
 			while (!queue.IsEmpty())
 			{
 				Edge minCostEdge = queue.Dequeue();
 				if (!connectedComponents.AreConnected(minCostEdge.Vertex1, minCostEdge.Vertex2))
 				{
-					mst.Add(new Tuple<TVertex, TVertex>(minCostEdge.Vertex1, minCostEdge.Vertex2));
+					yield return Tuple.Create(minCostEdge.Vertex1, minCostEdge.Vertex2);
 					connectedComponents.Union(minCostEdge.Vertex1, minCostEdge.Vertex2);
 				}
 			}
@@ -69,8 +67,6 @@ namespace DataStructures.Graphs
 			{
 				throw new ArgumentException("Graph not connected");
 			}
-
-			return mst;
 		}
 	}
 }

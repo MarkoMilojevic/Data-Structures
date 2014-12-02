@@ -8,21 +8,14 @@ namespace DataStructures.Graphs
 {
 	public class BreadthFirstSearch<TVertex>
 	{
-		private IGraph<TVertex> graph;
-
-		public BreadthFirstSearch(IGraph<TVertex> graph)
+		public static IEnumerable<TVertex> GetReachableVertices(IGraph<TVertex> graph, TVertex source)
 		{
 			if (graph == null)
 			{
 				throw new ArgumentNullException();
 			}
 
-			this.graph = graph;
-		}
-
-		public IEnumerable<TVertex> GetReachableVertices(TVertex source)
-		{
-			if (!this.graph.ContainsVertex(source))
+			if (!graph.ContainsVertex(source))
 			{
 				throw new ArgumentException("Vertex not contained in graph");
 			}

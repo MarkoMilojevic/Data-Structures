@@ -24,21 +24,14 @@ namespace DataStructures.Graphs
 			}
 		}
 
-		private IWeightedGraph<TVertex> graph;
-
-		public DijkstraShortestPath(IWeightedGraph<TVertex> graph)
+		public static Dictionary<TVertex, TVertex> GetParentsMap(IWeightedGraph<TVertex> graph, TVertex source)
 		{
 			if (graph == null)
 			{
 				throw new ArgumentNullException();
 			}
 
-			this.graph = graph;
-		}
-
-		public Dictionary<TVertex, TVertex> GetParentsMap(TVertex source)
-		{
-			if (!this.graph.ContainsVertex(source))
+			if (!graph.ContainsVertex(source))
 			{
 				throw new ArgumentException("Vertex not contained in graph");
 			}
@@ -46,9 +39,9 @@ namespace DataStructures.Graphs
 			PriorityQueue<QueueItem> queue = new PriorityQueue<QueueItem>();
 			Dictionary<TVertex, QueueItem> notSpanned = new Dictionary<TVertex, QueueItem>();
 			Dictionary<TVertex, TVertex> parentsMap = new Dictionary<TVertex, TVertex>();
-			foreach (TVertex vertex in this.graph.GetVertices().Where(v => !v.Equals(source)))
+			foreach (TVertex vertex in graph.GetVertices().Where(v => !v.Equals(source)))
 			{
-				double pathCostFromSource = this.graph.GetEdgeWeight(source, vertex);
+				double pathCostFromSource = graph.GetEdgeWeight(source, vertex);
 				QueueItem item = new QueueItem(vertex, pathCostFromSource);
 				queue.Enqueue(item);
 				notSpanned.Add(vertex, item);
@@ -67,10 +60,10 @@ namespace DataStructures.Graphs
 				}
 				
 				notSpanned.Remove(toSpan.VertexToSpan);
-				foreach (TVertex vertex in this.graph.GetNeighbours(toSpan.VertexToSpan).Where(v => notSpanned.ContainsKey(v)))
+				foreach (TVertex vertex in graph.GetNeighbours(toSpan.VertexToSpan).Where(v => notSpanned.ContainsKey(v)))
 				{
 					QueueItem toRelax = queue.Dequeue(notSpanned[vertex]);
-					double edgeWeight = this.graph.GetEdgeWeight(toSpan.VertexToSpan, vertex);
+					double edgeWeight = graph.GetEdgeWeight(toSpan.VertexToSpan, vertex);
 					if (toSpan.PathCostFromSource + edgeWeight < toRelax.PathCostFromSource)
 					{
 						toRelax.PathCostFromSource = toSpan.PathCostFromSource + edgeWeight;
