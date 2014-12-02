@@ -44,14 +44,14 @@ namespace DataStructures.Graphs
 			}
 
 			PriorityQueue<QueueItem> queue = new PriorityQueue<QueueItem>();
-			Dictionary<TVertex, QueueItem> itemsMap = new Dictionary<TVertex, QueueItem>();
+			Dictionary<TVertex, QueueItem> notSpanned = new Dictionary<TVertex, QueueItem>();
 			Dictionary<TVertex, TVertex> parentsMap = new Dictionary<TVertex, TVertex>();
 			foreach (TVertex vertex in this.graph.GetVertices().Where(v => !v.Equals(source)))
 			{
 				double pathCostFromSource = this.graph.GetEdgeWeight(source, vertex);
 				QueueItem item = new QueueItem(vertex, pathCostFromSource);
 				queue.Enqueue(item);
-				itemsMap.Add(vertex, item);
+				notSpanned.Add(vertex, item);
 				if (pathCostFromSource < double.PositiveInfinity)
 				{
 					parentsMap.Add(vertex, source);
@@ -66,10 +66,10 @@ namespace DataStructures.Graphs
 					break;
 				}
 				
-				itemsMap.Remove(toSpan.VertexToSpan);
-				foreach (TVertex vertex in this.graph.GetNeighbours(toSpan.VertexToSpan).Where(v => itemsMap.ContainsKey(v)))
+				notSpanned.Remove(toSpan.VertexToSpan);
+				foreach (TVertex vertex in this.graph.GetNeighbours(toSpan.VertexToSpan).Where(v => notSpanned.ContainsKey(v)))
 				{
-					QueueItem toRelax = queue.Dequeue(itemsMap[vertex]);
+					QueueItem toRelax = queue.Dequeue(notSpanned[vertex]);
 					double edgeWeight = this.graph.GetEdgeWeight(toSpan.VertexToSpan, vertex);
 					if (toSpan.PathCostFromSource + edgeWeight < toRelax.PathCostFromSource)
 					{

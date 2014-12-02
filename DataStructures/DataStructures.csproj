@@ -47,6 +47,7 @@
     <Compile Include="IGraph.cs" />
     <Compile Include="IUndirectedGraph.cs" />
     <Compile Include="IWeightedGraph.cs" />
+    <Compile Include="KruskalsMST.cs" />
     <Compile Include="PrimsMST.cs" />
     <Compile Include="PriorityQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

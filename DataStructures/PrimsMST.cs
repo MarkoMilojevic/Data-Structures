@@ -48,14 +48,14 @@ namespace DataStructures.Graphs
 
 			TVertex source = this.graph.GetVertices().First();
 			PriorityQueue<QueueItem> queue = new PriorityQueue<QueueItem>();
-			Dictionary<TVertex, QueueItem> itemsMap = new Dictionary<TVertex, QueueItem>();
+			Dictionary<TVertex, QueueItem> notSpanned = new Dictionary<TVertex, QueueItem>();
 			foreach(TVertex vertex in this.graph.GetVertices().Where(v => !v.Equals(source)))
 			{
 				double costToSpan = this.graph.GetEdgeWeight(source, vertex);
 				TVertex src = costToSpan < double.PositiveInfinity ? source : default(TVertex);
 				QueueItem item = new QueueItem(vertex, src, costToSpan);
 				queue.Enqueue(item);
-				itemsMap.Add(vertex, item);
+				notSpanned.Add(vertex, item);
 			}
 
 			while (!queue.IsEmpty())
@@ -67,10 +67,10 @@ namespace DataStructures.Graphs
 				}
 
 				mst.Add(new Tuple<TVertex, TVertex>(toSpan.Source, toSpan.VertexToSpan));
-				itemsMap.Remove(toSpan.VertexToSpan);
-				foreach (TVertex vertex in this.graph.GetNeighbours(toSpan.VertexToSpan).Where(v => itemsMap.ContainsKey(v)))
+				notSpanned.Remove(toSpan.VertexToSpan);
+				foreach (TVertex vertex in this.graph.GetNeighbours(toSpan.VertexToSpan).Where(v => notSpanned.ContainsKey(v)))
 				{
-					QueueItem toRelax = queue.Dequeue(itemsMap[vertex]);
+					QueueItem toRelax = queue.Dequeue(notSpanned[vertex]);
 					double costToSpan = this.graph.GetEdgeWeight(toSpan.VertexToSpan, vertex);
 					if (costToSpan < toRelax.CostToSpan)
 					{
