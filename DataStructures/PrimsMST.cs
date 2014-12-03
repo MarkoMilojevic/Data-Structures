@@ -38,6 +38,11 @@ namespace DataStructures.Graphs
 				yield break;
 			}
 
+			if (ConnectedComponents<TVertex>.GetConnectedComponentsCount(graph) > 1)
+			{
+				throw new ArgumentException("Graph not connected");
+			}
+
 			TVertex source = graph.GetVertices().First();
 			PriorityQueue<QueueItem> queue = new PriorityQueue<QueueItem>();
 			Dictionary<TVertex, QueueItem> notSpanned = new Dictionary<TVertex, QueueItem>();
@@ -54,11 +59,6 @@ namespace DataStructures.Graphs
 			while (!queue.IsEmpty())
 			{
 				QueueItem toSpan = queue.Dequeue();
-				if (Double.IsPositiveInfinity(toSpan.CostToSpan))
-				{
-					throw new ArgumentException("Graph not connected");
-				}
-
 				yield return Tuple.Create(toSpan.Source, toSpan.VertexToSpan);
 				notSpanned.Remove(toSpan.VertexToSpan);
 				foreach (TVertex vertex in graph.GetNeighbours(toSpan.VertexToSpan).Where(v => notSpanned.ContainsKey(v)))

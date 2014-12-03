@@ -3,8 +3,6 @@ using DataStructures.UnionFind;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataStructures.Graphs
 {
@@ -41,6 +39,11 @@ namespace DataStructures.Graphs
 				yield break;
 			}
 
+			if (ConnectedComponents<TVertex>.GetConnectedComponentsCount(graph) > 1)
+			{
+				throw new ArgumentException("Graph not connected");
+			}
+
 			PriorityQueue<Edge> queue = new PriorityQueue<Edge>();
 			UnionFind<TVertex> connectedComponents = new UnionFind<TVertex>();
 			foreach(TVertex vertex in graph.GetVertices())
@@ -61,11 +64,6 @@ namespace DataStructures.Graphs
 					yield return Tuple.Create(minCostEdge.Vertex1, minCostEdge.Vertex2);
 					connectedComponents.Union(minCostEdge.Vertex1, minCostEdge.Vertex2);
 				}
-			}
-
-			if (connectedComponents.Count > 1)
-			{
-				throw new ArgumentException("Graph not connected");
 			}
 		}
 	}

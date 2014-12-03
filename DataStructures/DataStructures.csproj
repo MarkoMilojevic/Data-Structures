@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BreadthFirstSearch.cs" />
+    <Compile Include="ConnectedComponents.cs" />
     <Compile Include="DepthFirstSearch.cs" />
     <Compile Include="DijkstraShortestPath.cs" />
     <Compile Include="DirectedAcyclicGraph.cs" />
