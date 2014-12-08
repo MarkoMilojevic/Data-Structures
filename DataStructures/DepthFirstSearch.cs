@@ -29,7 +29,7 @@ namespace DataStructures.Graphs
 					visited.Add(toSpan);
 					yield return toSpan;
 					IEnumerable<TVertex> neighbours = graph.GetNeighbours(toSpan).Where(v => !visited.Contains(v));
-					foreach (var neighbour in neighbours.Reverse())
+					foreach (TVertex neighbour in neighbours.Reverse())
 					{
 						stack.Push(neighbour);
 					}
