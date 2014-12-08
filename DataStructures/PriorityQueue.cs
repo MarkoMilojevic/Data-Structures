@@ -26,9 +26,14 @@ namespace DataStructures.PriorityQueues
 
 		public PriorityQueue(IEnumerable<T> keys, IComparer<T> comparer)
 		{
-			if (keys == null || comparer == null)
+			if (keys == null)
 			{
-				throw new ArgumentNullException();
+				throw new ArgumentNullException("keys", "Specify a non-null argument.");
+			}
+
+			if (comparer == null)
+			{
+				throw new ArgumentNullException("comparer", "Specify a non-null argument.");
 			}
 
 			this.queue = new T[InitialCapacity];
@@ -50,7 +55,7 @@ namespace DataStructures.PriorityQueues
 		{
 			if (this.IsEmpty())
 			{
-				throw new InvalidOperationException("Queue is empty");
+				throw new InvalidOperationException("Queue does not contain any elements.");
 			}
 			
 			return this.queue[1];
@@ -60,7 +65,7 @@ namespace DataStructures.PriorityQueues
 		{
 			if (key == null)
 			{
-				throw new ArgumentNullException();
+				throw new ArgumentNullException("key", "Specify a non-null argument.");
 			}
 
 			if (this.isFull())
@@ -77,7 +82,7 @@ namespace DataStructures.PriorityQueues
 		{
 			if (this.IsEmpty())
 			{
-				throw new InvalidOperationException("Queue is empty");
+				throw new InvalidOperationException("Queue does not contain any elements.");
 			}
 
 			this.swap(1, this.Count);
@@ -97,12 +102,12 @@ namespace DataStructures.PriorityQueues
 		{
 			if (this.IsEmpty())
 			{
-				throw new InvalidOperationException("Queue is empty");
+				throw new InvalidOperationException("Queue does not contain any elements.");
 			}
 
 			if (!this.indices.ContainsKey(key))
 			{
-				throw new ArgumentException("No such key");
+				throw new InvalidOperationException("Queue does not contain given key.");
 			}
 
 			int keyIndex = this.indices[key];

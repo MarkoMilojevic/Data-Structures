@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataStructures.Graphs
 {
-	public class DirectedAcyclicGraph<TVertex> : IDirectedGraph<TVertex>
+	public class DirectedGraph<TVertex> : IDirectedGraph<TVertex>
 	{
 		private Dictionary<TVertex, HashSet<TVertex>> adjacencyList;
 		public int VertexCount { get { return adjacencyList.Count; } }
 		public int EdgeCount { get; protected set; }
 
-		public DirectedAcyclicGraph()
+		public DirectedGraph()
 		{
 			this.adjacencyList = new Dictionary<TVertex, HashSet<TVertex>>();
 			this.EdgeCount = 0;
@@ -55,7 +53,7 @@ namespace DataStructures.Graphs
 		{
 			if (!this.ContainsVertex(vertex))
 			{
-				throw new ArgumentException("Vertex not contained in graph");
+				throw new InvalidOperationException("Graph does not contain specified vertex.");
 			}
 			
 			return this.adjacencyList[vertex];
@@ -63,14 +61,19 @@ namespace DataStructures.Graphs
 
 		public void AddEdge(TVertex source, TVertex target)
 		{
-			if (!this.ContainsVertex(source) || !this.ContainsVertex(target))
+			if (!this.ContainsVertex(source))
 			{
-				throw new ArgumentException("Vertices not contained in graph");
+				throw new InvalidOperationException("Graph does not contain vertex 'source'.");
+			}
+
+			if (!this.ContainsVertex(target))
+			{
+				throw new InvalidOperationException("Graph does not contain vertex 'target'.");
 			}
 
 			if (source.Equals(target))
 			{
-				throw new ArgumentException("Self-loops not allowed");
+				throw new InvalidOperationException("Graph does not allow self-loops on vertices.");
 			}
 
 			if (!this.ContainsEdge(source, target))

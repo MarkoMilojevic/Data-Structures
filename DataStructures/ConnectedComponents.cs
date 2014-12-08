@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 namespace DataStructures.Graphs
 {
 	public class ConnectedComponents<TVertex>
@@ -9,19 +10,19 @@ namespace DataStructures.Graphs
 		{
 			if (graph == null)
 			{
-				throw new ArgumentNullException();
+				throw new ArgumentNullException("graph", "Specify a non-null argument.");
 			}
 
 			HashSet<TVertex> visited = new HashSet<TVertex>();
-			int componentsCount = 0;
+			int count = 0;
 			foreach (TVertex vertex in graph.GetVertices().Where(v => !visited.Contains(v)))
 			{
 				IEnumerable<TVertex> reachable = DepthFirstSearch<TVertex>.GetReachableVertices(graph, vertex);
 				visited.UnionWith(reachable);
-				componentsCount++;
+				count++;
 			}
 
-			return componentsCount;
+			return count;
 		}
 	}
 }

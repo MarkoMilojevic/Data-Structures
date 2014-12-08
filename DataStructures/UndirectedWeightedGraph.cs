@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataStructures.Graphs
 {
-	public class UndirectedAcyclicGraph<TVertex> : IUndirectedGraph<TVertex>
+	public class UndirectedWeightedGraph<TVertex> : IUndirectedGraph<TVertex>, IWeightedGraph<TVertex>
 	{
-		private Dictionary<TVertex, HashSet<TVertex>> adjacencyList;
+		private Dictionary<TVertex, Dictionary<TVertex, double>> adjacencyList;
 		public int VertexCount { get { return adjacencyList.Count; } }
 		public int EdgeCount { get; protected set; }
 
-		public UndirectedAcyclicGraph()
+		public UndirectedWeightedGraph()
 		{
-			this.adjacencyList = new Dictionary<TVertex, HashSet<TVertex>>();
+			this.adjacencyList = new Dictionary<TVertex, Dictionary<TVertex, double>>();
 			this.EdgeCount = 0;
 		}
 
@@ -27,7 +25,7 @@ namespace DataStructures.Graphs
 		{
 			if (!this.ContainsVertex(vertex))
 			{
-				this.adjacencyList.Add(vertex, new HashSet<TVertex>());
+				this.adjacencyList.Add(vertex, new Dictionary<TVertex, double>());
 			}
 		}
 
@@ -55,33 +53,38 @@ namespace DataStructures.Graphs
 		{
 			if (!this.ContainsVertex(vertex))
 			{
-				throw new ArgumentException("Vertex not contained in graph");
+				throw new InvalidOperationException("Graph does not contain specified vertex.");
 			}
-			
-			return this.adjacencyList[vertex];
+
+			return this.adjacencyList[vertex].Keys;
 		}
 
-		public void Connect(TVertex vertex1, TVertex vertex2)
+		public void Connect(TVertex vertex1, TVertex vertex2, double weight)
 		{
-			this.addEdge(vertex1, vertex2);
-			this.addEdge(vertex2, vertex1);
+			this.addEdge(vertex1, vertex2, weight);
+			this.addEdge(vertex2, vertex1, weight);
 		}
 
-		private void addEdge(TVertex source, TVertex target)
+		private void addEdge(TVertex source, TVertex target, double weight)
 		{
-			if (!this.ContainsVertex(source) || !this.ContainsVertex(target))
+			if (!this.ContainsVertex(source))
 			{
-				throw new ArgumentException("Vertices not contained in graph");
+				throw new InvalidOperationException("Graph does not contain vertex 'source'.");
+			}
+
+			if (!this.ContainsVertex(target))
+			{
+				throw new InvalidOperationException("Graph does not contain vertex 'target'.");
 			}
 
 			if (source.Equals(target))
 			{
-				throw new ArgumentException("Self-loops not allowed");
+				throw new InvalidOperationException("Graph does not allow self-loops on vertices.");
 			}
 
 			if (!this.containsEdge(source, target))
 			{
-				this.adjacencyList[source].Add(target);
+				this.adjacencyList[source].Add(target, weight);
 				this.EdgeCount++;
 			}
 		}
@@ -101,6 +104,21 @@ namespace DataStructures.Graphs
 			}
 		}
 
+		public double GetEdgeWeight(TVertex source, TVertex target)
+		{
+			if (!this.ContainsVertex(source))
+			{
+				throw new InvalidOperationException("Graph does not contain vertex 'source'.");
+			}
+
+			if (!this.ContainsVertex(target))
+			{
+				throw new InvalidOperationException("Graph does not contain vertex 'target'.");
+			}
+
+			return this.AreConnected(source, target) ? this.adjacencyList[source][target] : double.PositiveInfinity;
+		}
+
 		public bool AreConnected(TVertex vertex1, TVertex vertex2)
 		{
 			return this.containsEdge(vertex1, vertex2) && this.containsEdge(vertex2, vertex1);
@@ -109,7 +127,7 @@ namespace DataStructures.Graphs
 		private bool containsEdge(TVertex source, TVertex target)
 		{
 			return this.ContainsVertex(source) && this.ContainsVertex(target)
-				&& this.adjacencyList[source].Contains(target);
+				&& this.adjacencyList[source].ContainsKey(target);
 		}
 	}
 }

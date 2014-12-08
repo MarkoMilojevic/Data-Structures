@@ -28,12 +28,12 @@ namespace DataStructures.Graphs
 		{
 			if (graph == null)
 			{
-				throw new ArgumentNullException();
+				throw new ArgumentNullException("graph", "Specify a non-null argument.");
 			}
 
 			if (!graph.ContainsVertex(source))
 			{
-				throw new ArgumentException("Vertex not contained in graph");
+				throw new InvalidOperationException("Graph does not contain vertex 'source'.");
 			}
 
 			PriorityQueue<QueueItem> queue = new PriorityQueue<QueueItem>();

@@ -41,7 +41,7 @@ namespace DataStructures.UnionFind
 		{
 			if (!parentMap.ContainsKey(element))
 			{
-				throw new ArgumentException("Element not found");
+				throw new InvalidOperationException("Specified element is not found.");
 			}
 
 			T parent = element;

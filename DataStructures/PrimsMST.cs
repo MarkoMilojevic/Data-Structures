@@ -26,11 +26,11 @@ namespace DataStructures.Graphs
 			}
 		}
 
-		public static IEnumerable<Tuple<TVertex, TVertex>> GetMST(UndirectedAcyclicWeightedGraph<TVertex> graph)
+		public static IEnumerable<Tuple<TVertex, TVertex>> GetMST(UndirectedWeightedGraph<TVertex> graph)
 		{
 			if (graph == null)
 			{
-				throw new ArgumentNullException();
+				throw new ArgumentNullException("graph", "Specify a non-null argument.");
 			}
 
 			if (graph.VertexCount == 0)
@@ -40,7 +40,7 @@ namespace DataStructures.Graphs
 
 			if (ConnectedComponents<TVertex>.GetConnectedComponentsCount(graph) > 1)
 			{
-				throw new ArgumentException("Graph not connected");
+				throw new ArgumentException("Graph is not connected.");
 			}
 
 			TVertex source = graph.GetVertices().First();
